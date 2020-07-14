@@ -25,7 +25,7 @@ echo_success() {
 ## PROGRAM FUNCTIONS
 
 download() {
-  if [ ! -f "$SPIGOT_BUILDTOOLS_FILE" ]; then
+  if [ ! -f "$SPIGOT_BUILDTOOLS_FILE" ] || [ "$FORCE_DOWNLOAD" = "true" ]; then
     echo_info "Downloading $SPIGOT_BUILDTOOLS_FILE..."
     curl --progress-bar "$SPIGOT_BUILDTOOLS_URL" -o "$SPIGOT_BUILDTOOLS_FILE" &&
       echo_success "Downloaded $SPIGOT_BUILDTOOLS_FILE" ||
@@ -34,19 +34,23 @@ download() {
 }
 
 build() {
-  if [ ! -f "$SPIGOT_FILE" ]; then
+  if [ ! -f "$SPIGOT_FILE" ] || [ "$FORCE_BUILD" = "true" ]; then
     echo_info "Building $SPIGOT_FILE..."
-    (java -jar "$SPIGOT_BUILDTOOLS_FILE" --rev "$MINECRAFT_VERSION" > /dev/null) && \
+    (java -jar "$SPIGOT_BUILDTOOLS_FILE" --rev "$MINECRAFT_VERSION" >/dev/null) &&
       echo_success "Built $SPIGOT_FILE" ||
       (echo_error "Can't build $SPIGOT_FILE" && exit 1)
+
+    FORCE_COPY=true
   fi
 }
 
 copy() {
-  echo_info "Copying $SPIGOT_FILE to $SERVER_FILE..."
-  cp -f "$SPIGOT_FILE" "$SERVER_FILE" && \
-    echo_success "Copied $SPIGOT_FILE" ||
-    (echo_error "Can't copy $SPIGOT_FILE" && exit 1)
+  if [ ! -f "$SERVER_FILE" ] || [ "$FORCE_COPY" = "true" ]; then
+    echo_info "Copying $SPIGOT_FILE to $SERVER_FILE..."
+    cp -f "$SPIGOT_FILE" "$SERVER_FILE" &&
+      echo_success "Copied $SPIGOT_FILE" ||
+      (echo_error "Can't copy $SPIGOT_FILE" && exit 1)
+  fi
 }
 
 # PROGRAM
