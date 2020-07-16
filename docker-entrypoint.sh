@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # IMPORTS
 
@@ -7,7 +7,7 @@
 
 # PROGRAM
 
-if [ "$MODE" = "build" ]; then
+if [[ "$MODE" = "build" ]]; then
   spigot_build.sh || exit 1
 else
   spigot_download.sh || exit 1
